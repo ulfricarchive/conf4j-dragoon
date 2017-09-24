@@ -14,6 +14,8 @@ public @interface Settings {
 
 	String extension() default SettingsExtension.DEFAULT_FILE_EXTENSION;
 
+	boolean appendExtension() default true;
+
 	Reload reload() default @Reload;
 
 }

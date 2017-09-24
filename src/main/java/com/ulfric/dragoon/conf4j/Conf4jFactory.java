@@ -1,12 +1,14 @@
 package com.ulfric.dragoon.conf4j;
 
 import com.ulfric.conf4j.Configuration;
+import com.ulfric.conf4j.interpreter.DataType;
 import com.ulfric.conf4j.interpreter.DataTypes;
 import com.ulfric.conf4j.interpreter.StandardInterpreterProvider;
 import com.ulfric.conf4j.reload.PeriodicalReloadingStrategy;
 import com.ulfric.conf4j.reload.ReloadingStrategy;
 import com.ulfric.conf4j.source.MultiSource;
 import com.ulfric.conf4j.source.Source;
+import com.ulfric.conf4j.source.path.DirSource;
 import com.ulfric.conf4j.source.path.PathSource;
 import com.ulfric.dragoon.Factory;
 import com.ulfric.dragoon.ObjectFactory;
@@ -18,6 +20,7 @@ import com.ulfric.dragoon.stereotype.Stereotypes;
 
 import java.net.URISyntaxException;
 import java.nio.file.FileSystem;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -43,12 +46,18 @@ public class Conf4jFactory implements Factory {
 
 		Settings settings = Stereotypes.getFirst(qualifier, Settings.class);
 
+		DataType dataType = DataTypes.get(settings.extension());
 		String fileName = getFileName(settings, qualifier);
 
 		List<Source> sources = new ArrayList<>();
-		sources.add(new PathSource(folderOnDisk.resolve(fileName)));
+		Path existingFile = folderOnDisk.resolve(fileName);
+		if (Files.isDirectory(existingFile)) {
+			sources.add(new DirSource(dataType, existingFile));
+		} else {
+			sources.add(new PathSource(existingFile));
+		}
 		sources.add(new PathSource(getClassLoaderResource(type.getClassLoader(), defaultFolder().resolve(fileName).toString())));
-		Source source = new MultiSource(DataTypes.get(settings.extension()), sources);
+		Source source = new MultiSource(dataType, sources);
 
 		return Configuration.builder()
 			.setSource(source)
@@ -77,7 +86,11 @@ public class Conf4jFactory implements Factory {
 	}
 
 	private String getFileName(Settings settings, Qualifier qualifier) {
-		return name(settings, qualifier) + '.' + extension(settings);
+		String name = name(settings, qualifier);
+		if (settings.appendExtension()) {
+			return name + '.' + extension(settings);
+		}
+		return name;
 	}
 
 	private String name(Settings settings, Qualifier qualifier) {
