@@ -40,7 +40,7 @@ public class Conf4jFactory implements Factory {
 	}
 
 	@Override
-	public <T> T request(Class<T> type, Parameters parameters) { // TODO cache Configuration objects
+	public <T> T request(Class<T> type, Parameters parameters) { // TODO cache Configuration objects, cleanup
 		Path folderOnDisk = folder(parameters.getHolder());
 		Qualifier qualifier = parameters.getQualifier();
 
