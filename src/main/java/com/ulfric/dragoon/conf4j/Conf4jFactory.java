@@ -26,7 +26,6 @@ import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -87,8 +86,7 @@ public class Conf4jFactory implements Factory {
 		try {
 			resource = resource.replace('\\', '/');
 			URI resourceUri = loader.getResource(resource).toURI();
-			getJarFileSystem(resourceUri);
-			return Paths.get(resourceUri); // TODO use fileSystem field?
+			return getJarFileSystem(resourceUri).provider().getPath(resourceUri);
 		} catch (Exception exception) {
 			if (logger != null) {
 				logger.log(Level.SEVERE, "Exception finding resource " + resource + " in loader " + loader, exception);
