@@ -60,6 +60,13 @@ public class Conf4jFactory implements Factory {
 		String fileName = getFileName(settings, qualifier);
 
 		List<Source> sources = new ArrayList<>();
+
+		Path classPathResource =
+				getClassLoaderResource(type.getClassLoader(), defaultFolder().resolve(fileName).toString());
+		if (classPathResource != null) {
+			sources.add((new PathSource(classPathResource)));
+		}
+
 		Path existingFile = folderOnDisk.resolve(fileName);
 		if (Files.isDirectory(existingFile)) {
 			sources.add(new DirSource(dataType, existingFile));
@@ -67,11 +74,6 @@ public class Conf4jFactory implements Factory {
 			sources.add(new PathSource(existingFile));
 		}
 
-		Path classPathResource =
-				getClassLoaderResource(type.getClassLoader(), defaultFolder().resolve(fileName).toString());
-		if (classPathResource != null) {
-			sources.add((new PathSource(classPathResource)));
-		}
 		Source source = new MultiSource(dataType, sources);
 
 		return Configuration.builder()
