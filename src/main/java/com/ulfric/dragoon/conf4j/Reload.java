@@ -10,8 +10,8 @@ public @interface Reload {
 
 	boolean never() default false;
 
-	long period() default 2L;
+	long period() default 15L;
 
-	TimeUnit unit() default TimeUnit.MINUTES;
+	TimeUnit unit() default TimeUnit.SECONDS;
 
 }
