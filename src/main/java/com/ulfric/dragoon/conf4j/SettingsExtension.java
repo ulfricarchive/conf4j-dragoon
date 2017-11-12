@@ -3,6 +3,7 @@ package com.ulfric.dragoon.conf4j;
 import com.ulfric.dragoon.Factory;
 import com.ulfric.dragoon.extension.Extension;
 import com.ulfric.dragoon.extension.inject.Inject;
+import com.ulfric.dragoon.reflect.Classes;
 import com.ulfric.dragoon.reflect.FieldProfile;
 import com.ulfric.dragoon.reflect.LazyFieldProfile;
 
@@ -29,10 +30,18 @@ public class SettingsExtension extends Extension {
 
 	@Override
 	public <T> T transform(T value) {
-		if (!loading) {
+		if (!loading && value instanceof Configured) {
 			fields.accept(value);
 		}
 		return value;
+	}
+
+	@Override
+	public <T> Class<? extends T> transform(Class<T> type) {
+		if (!loading && fields.test(type)) {
+			return Classes.implement(type, Configured.class);
+		}
+		return type;
 	}
 
 }
