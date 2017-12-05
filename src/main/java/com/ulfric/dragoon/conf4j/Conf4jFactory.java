@@ -1,5 +1,21 @@
 package com.ulfric.dragoon.conf4j;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.lang.reflect.Type;
+import java.net.URI;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystemNotFoundException;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.ulfric.conf4j.Configuration;
 import com.ulfric.conf4j.interpreter.DataType;
 import com.ulfric.conf4j.interpreter.DataTypes;
@@ -16,22 +32,8 @@ import com.ulfric.dragoon.Parameters;
 import com.ulfric.dragoon.application.Container;
 import com.ulfric.dragoon.extension.inject.Inject;
 import com.ulfric.dragoon.qualifier.Qualifier;
+import com.ulfric.dragoon.reflect.Classes;
 import com.ulfric.dragoon.stereotype.Stereotypes;
-
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.net.URI;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystemNotFoundException;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class Conf4jFactory implements Factory {
 
@@ -62,7 +64,7 @@ public class Conf4jFactory implements Factory {
 		List<Source> sources = new ArrayList<>();
 
 		Path classPathResource =
-				getClassLoaderResource(type.getClassLoader(), defaultFolder().resolve(fileName).toString());
+				getClassLoaderResource(getClassLoader(type, qualifier), defaultFolder().resolve(fileName).toString());
 		if (classPathResource != null) {
 			sources.add((new PathSource(classPathResource)));
 		}
@@ -82,6 +84,16 @@ public class Conf4jFactory implements Factory {
 			.setReloadingStrategy(reload(settings))
 			.build()
 			.as(type);
+	}
+
+	private ClassLoader getClassLoader(Class<?> type, Qualifier qualifier) {
+		Type enclosing = qualifier.getEnclosingType();
+
+		if (enclosing == null) {
+			return type.getClassLoader();
+		}
+
+		return Classes.getRawType(qualifier.getEnclosingType()).getClassLoader();
 	}
 
 	private Path getClassLoaderResource(ClassLoader loader, String resource) {
