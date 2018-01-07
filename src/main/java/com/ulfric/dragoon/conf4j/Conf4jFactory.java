@@ -141,7 +141,7 @@ public class Conf4jFactory implements Factory {
 	private String name(Settings settings, Qualifier qualifier) {
 		String name = settings.value();
 		if (name.isEmpty()) {
-			return qualifier.getName();
+			return qualifier.getSimpleName();
 		}
 		return name;
 	}
