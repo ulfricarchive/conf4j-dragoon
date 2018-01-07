@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.ulfric.conf4j.Configuration;
 import com.ulfric.conf4j.interpreter.DataType;
@@ -30,7 +31,6 @@ import com.ulfric.dragoon.ObjectFactory;
 import com.ulfric.dragoon.Parameters;
 import com.ulfric.dragoon.application.Container;
 import com.ulfric.dragoon.extension.inject.Inject;
-import com.ulfric.dragoon.logging.Log;
 import com.ulfric.dragoon.qualifier.Qualifier;
 import com.ulfric.dragoon.reflect.Classes;
 import com.ulfric.dragoon.stereotype.Stereotypes;
@@ -44,7 +44,7 @@ public class Conf4jFactory implements Factory {
 	private FileSystem fileSystem;
 
 	@Inject
-	private Log logger;
+	private Logger logger;
 
 	@Override
 	public <T> T request(Class<T> type) {
